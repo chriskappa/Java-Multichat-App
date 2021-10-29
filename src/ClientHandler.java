@@ -1,3 +1,5 @@
+import jdk.swing.interop.SwingInterOpUtils;
+
 import java.io.*;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -55,6 +57,10 @@ public class ClientHandler implements Runnable {
             try{
 
                 msgFromClient = Reader.readLine();
+                String[] result  = msgFromClient.split("\\s*:\\s*");
+                System.out.println(result);
+                if(msgFromClient.split(":")[1].equals("!online")) printOnlineUsers();
+
                 sendMessage(msgFromClient+" At "+time);
             }
             catch(IOException e){
@@ -63,6 +69,22 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
+    private void printOnlineUsers() {
+        sendMessage("_______ONLINE USERS_______",true);
+        for(ClientHandler user : users){
+            try{
+
+                sendMessage(user.clientUsername+" is Online",true);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+
+
+        }
+    }
+
     public void closeStreams(Socket socket , BufferedReader reader , BufferedWriter writer){
         removeUser();
         try{
@@ -98,6 +120,32 @@ public class ClientHandler implements Runnable {
 
 
             }
+
+    }
+
+    public void sendMessage(String msg,boolean all ){
+
+        /**
+         * Sending Messages to clients except the Client who sends this message
+         * And then we flush the buffer
+         * because the buffer sends data only when its full so we do it manualy in case its not full
+         * After users Message*/
+        for(ClientHandler client:users){
+            try{
+                    if(client.clientUsername == clientUsername){
+                        client.Writer.write(msg);
+                        client.Writer.newLine();
+                        client.Writer.flush();
+                    }
+
+
+
+            }catch(IOException e){
+                closeStreams(socket,Reader,Writer);
+            }
+
+
+        }
 
     }
 

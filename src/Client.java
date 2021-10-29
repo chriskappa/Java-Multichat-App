@@ -65,6 +65,8 @@ public class Client {
 
         Scanner scanner = new Scanner(System.in);
         try{
+            /**
+             * Sending The UserName first Since the ClientHandler Class is awaiting before it continues*/
             Writer.write(userName);
             Writer.newLine();
             Writer.flush();
